@@ -29,7 +29,7 @@ def recommend(skill: str):
         print("📁 Current working directory:", os.getcwd())
         print("📄 Files in this directory:", os.listdir())
 
-        df = pd.read_csv("shl_assessments.csv")
+        df = df = pd.read_csv("backend/shl_assessments.csv")
         print("🧠 Columns loaded:", df.columns.tolist())
 
         if 'Skills' not in df.columns:
