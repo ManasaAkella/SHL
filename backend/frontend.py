@@ -15,7 +15,7 @@ if st.button("🚀 Recommend"):
     else:
         with st.spinner("Finding the perfect assessments for you... 🧭"):
             try:
-                response = requests.get(f"http://127.0.0.1:8000/recommend_assessments?skill={skill}")
+                response = requests.get(f"https://shl-backend.onrender.com/recommend_assessments?skill={skill}")
                 data = response.json()
                 
                 if "error" in data or "message" in data:
