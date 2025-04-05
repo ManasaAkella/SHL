@@ -1,14 +1,14 @@
 from fastapi import FastAPI
-import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
+import pandas as pd
 
 app = FastAPI(
     title="SHL Assessment Recommendation System",
-    description="🚀 Recommend SHL assessments based on skills",
+    description="🚀 Recommends SHL assessments based on skills or job descriptions",
     version="0.1.0"
 )
 
-# CORS setup so frontend can access backend
+# 💫 CORS Setup: Allow frontend from anywhere to talk to us!
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,33 +18,35 @@ app.add_middleware(
 )
 
 @app.get("/")
-def home():
-    return {"message": "🎯 SHL Assessment Recommendation System is live and kickin’!"}
+def root():
+    return {"message": "🎯 SHL Assessment Recommendation System is LIVE! Ping me with skills to get started!"}
 
 @app.get("/recommend_assessments")
 def recommend(skill: str):
     try:
-        print("📥 Received skill:", skill)
-        
-        # Load your CSV file fresh every time
+        print("📥 Skill received:", skill)
+
+        # 🚨 Load CSV each time to get latest updates (or cache this later)
         df = pd.read_csv("shl_assessments.csv")
-        print("🧠 Columns in CSV:", df.columns)
-        print("🔍 First few rows:\n", df.head())
+
+        # ✅ Debug print
+        print("🧠 Columns loaded:", df.columns.tolist())
 
         if 'Skills' not in df.columns:
-            return {"error": "CSV file is missing 'Skills' column 😬"}
+            return {"error": "CSV is missing the 'Skills' column 😬"}
 
-        matching = df[df['Skills'].str.contains(skill, case=False, na=False)]
+        # 🔍 Case-insensitive match
+        matches = df[df['Skills'].str.contains(skill, case=False, na=False)]
 
-        if matching.empty:
-            print("❌ No matching assessments found.")
-            return {"message": f"No assessments found for skill: '{skill}' 😢"}
+        if matches.empty:
+            return {"message": f"No assessments found for '{skill}' 😢"}
 
-        # Use the actual column names from your CSV
-        results = matching[['Name', 'Skills', 'URL']].to_dict(orient="records")
-        print("✅ Recommendations found:", results)
-        return results
+        # 🎯 Limit to top 10, clean output
+        top_matches = matches[['Name', 'Skills', 'URL']].head(10).to_dict(orient="records")
+        print(f"✅ Found {len(top_matches)} recommendations")
+
+        return {"results": top_matches}
 
     except Exception as e:
-        print("💥 Internal Server Error:", str(e))
-        return {"error": "Something went wrong on the server 😓"}
+        print("💥 Error in /recommend_assessments:", str(e))
+        return {"error": "Something went wrong on the server. 😓"}
