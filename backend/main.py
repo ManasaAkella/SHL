@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
+import os
 
 app = FastAPI(
     title="SHL Assessment Recommendation System",
@@ -24,12 +25,15 @@ def root():
 @app.get("/recommend_assessments")
 def recommend(skill: str):
     try:
-        import os
         print("📥 Skill received:", skill)
         print("📁 Current working directory:", os.getcwd())
         print("📄 Files in this directory:", os.listdir())
 
-        df = df = pd.read_csv("backend/shl_assessments.csv")
+        # ✅ FIXED: Get path to CSV file no matter where this runs from
+        csv_path = os.path.join(os.path.dirname(__file__), "shl_assessments.csv")
+        print("📌 CSV path resolved to:", csv_path)
+
+        df = pd.read_csv(csv_path)
         print("🧠 Columns loaded:", df.columns.tolist())
 
         if 'Skills' not in df.columns:
